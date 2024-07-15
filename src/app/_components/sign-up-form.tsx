@@ -7,6 +7,7 @@ type signupInputFormTypes = {
   username: string;
   email: string;
   password: string;
+  confirmed_password: string;
   first_name: string;
   last_name: string;
 };
@@ -18,6 +19,7 @@ export default function SignUpForm() {
       username: "",
       email: "",
       password: "",
+      confirmed_password: "",
       first_name: "",
       last_name: "",
     },
@@ -57,6 +59,11 @@ export default function SignUpForm() {
           return "Password must be at least 8 characters long";
         }
       },
+      confirmed_password: (value, values) => {
+        if (value !== values.password) {
+          return "Passwords do not match";
+        }
+      },
     },
   });
 
@@ -89,6 +96,13 @@ export default function SignUpForm() {
         key={form.key("password")}
         {...form.getInputProps("password")}
       />
+      <PasswordInput
+        label="Confirm Password"
+        placeholder="Confirm your password"
+        name="confirmed_password"
+        key={form.key("confirmed_password")}
+        {...form.getInputProps("confirmed_password")}
+      />
       <TextInput
         label="First Name"
         placeholder="Input a first name"
@@ -104,7 +118,7 @@ export default function SignUpForm() {
         {...form.getInputProps("last_name")}
       />
       <Group justify="flex-end" mt="md">
-        <Button type="submit">Submit</Button>
+        <Button type="submit">Sign Up</Button>
       </Group>
     </form>
   );
