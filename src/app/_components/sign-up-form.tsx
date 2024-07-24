@@ -1,4 +1,5 @@
 "use client";
+import { api } from "@/trpc/react";
 import { Button, Group, PasswordInput, TextInput } from "@mantine/core";
 import { hasLength, isEmail, useForm } from "@mantine/form";
 import React from "react";
@@ -67,9 +68,26 @@ export default function SignUpForm() {
     },
   });
 
+  const createUser = api.user.create.useMutation({
+    onSuccess: () => {
+      console.log("User created successfully");
+      form.reset();
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
   const handleFormSubmit = (values: signupInputFormTypes) => {
     console.log(values);
-    form.reset();
+
+    createUser.mutate({
+      username: values.username,
+      email: values.email,
+      password: values.password,
+      first_name: values.first_name,
+      last_name: values.last_name,
+    });
   };
 
   return (
