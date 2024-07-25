@@ -27,7 +27,7 @@ export default function SignUpForm() {
 
     validate: {
       username: hasLength(
-        { min: 2, max: 10 },
+        { min: 2, max: 20 },
         "Username must be 2-20 characters long"
       ),
       email: isEmail("Invalid email"),

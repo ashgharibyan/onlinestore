@@ -11,6 +11,7 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "@/server/db";
+import { NextApiRequest, NextApiResponse } from "next";
 
 /**
  * 1. CONTEXT
@@ -24,10 +25,23 @@ import { db } from "@/server/db";
  *
  * @see https://trpc.io/docs/server/context
  */
-export const createTRPCContext = async (opts: { headers: Headers }) => {
+// export const createTRPCContext = async (opts: { headers: Headers }) => {
+//   return {
+//     db,
+//     ...opts,
+//   };
+// };
+export const createTRPCContext = ({
+  req,
+  res,
+}: {
+  req: NextApiRequest;
+  res: NextApiResponse;
+}) => {
   return {
     db,
-    ...opts,
+    req,
+    res,
   };
 };
 

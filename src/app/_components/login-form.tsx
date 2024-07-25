@@ -1,7 +1,8 @@
 "use client";
+import { api } from "@/trpc/react";
 import { Button, Group, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
-import React from "react";
+import { useRouter } from "next/navigation";
 
 type loginInputFormTypes = {
   username: string;
@@ -9,6 +10,7 @@ type loginInputFormTypes = {
 };
 
 export default function LoginForm() {
+  const router = useRouter();
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -17,10 +19,26 @@ export default function LoginForm() {
     },
   });
 
-
+  const loginUser = api.user.login.useMutation({
+    onSuccess: (data) => {
+      console.log("data", data);
+      // const { token } = data;
+      // localStorage.setItem("token", token);
+      router.push("/dashboard");
+    },
+    onError: (error) => {
+      console.error("Error: ", error);
+    },
+  });
 
   const handleFormSubmit = (values: loginInputFormTypes) => {
     console.log(values);
+    try {
+      loginUser.mutate(values);
+    } catch (error) {
+      console.error("Error: ", error);
+    }
+
     form.reset();
   };
 
