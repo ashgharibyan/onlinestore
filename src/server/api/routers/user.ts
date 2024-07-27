@@ -5,7 +5,7 @@ import { hashPassword, verifyPassword } from "@/util/hashing";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export const userRouter = createTRPCRouter({
   create: publicProcedure
@@ -30,7 +30,7 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         username: z.string(),
-        password: z.string().min(6),
+        password: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -52,13 +52,17 @@ export const userRouter = createTRPCRouter({
         }
       );
 
-      cookies().set("token", token, {
+      // Set the JWT token in a cookie
+      const cookieHeader = cookies();
+      cookieHeader.set("token", token, {
         httpOnly: true,
-        maxAge: 60 * 60,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60, // 1 hour
+        path: "/",
       });
 
-      // ctx.res.setHeader("Set-Cookie", token);
-
-      return { success: true };
+      return new Response("Logged in", {
+        status: 200,
+      });
     }),
 });
