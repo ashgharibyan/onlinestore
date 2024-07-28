@@ -6,11 +6,14 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { type JwtPayload } from "jsonwebtoken";
 
 import { db } from "@/server/db";
+import { cookies } from "next/headers";
+import { decrypt } from "@/lib";
 
 /**
  * 1. CONTEXT
@@ -25,9 +28,29 @@ import { db } from "@/server/db";
  * @see https://trpc.io/docs/server/context
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
+  const session = cookies().get("session");
+
+  if (!session) {
+    return {
+      db,
+      ...opts,
+      session: null,
+    };
+  }
+
+  interface MyJwtPayload extends JwtPayload {
+    username: string;
+  }
+  const decoded = (await decrypt(session.value)) as MyJwtPayload;
+
+  const user = await db.user.findUnique({
+    where: { username: decoded.username },
+  });
+
   return {
     db,
     ...opts,
+    session: { user },
   };
 };
 
@@ -81,3 +104,15 @@ export const createTRPCRouter = t.router;
  * are logged in.
  */
 export const publicProcedure = t.procedure;
+
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx?.session?.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});

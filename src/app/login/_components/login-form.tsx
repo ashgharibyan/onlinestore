@@ -1,12 +1,8 @@
 "use client";
+import { login } from "@/actions/auth/login";
 import { Button, Group, PasswordInput, TextInput } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import React from "react";
-
-type loginInputFormTypes = {
-  username: string;
-  password: string;
-};
 
 export default function LoginForm() {
   const form = useForm({
@@ -17,13 +13,8 @@ export default function LoginForm() {
     },
   });
 
-  const handleFormSubmit = (values: loginInputFormTypes) => {
-    console.log(values);
-    form.reset();
-  };
-
   return (
-    <form onSubmit={form.onSubmit((values) => handleFormSubmit(values))}>
+    <form action={() => login(form.getValues())}>
       <TextInput
         label="Username"
         placeholder="Input your username"
