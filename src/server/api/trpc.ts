@@ -9,10 +9,11 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-import jwt, { type JwtPayload } from "jsonwebtoken";
+import { type JwtPayload } from "jsonwebtoken";
 
 import { db } from "@/server/db";
 import { cookies } from "next/headers";
+import { decrypt } from "@/lib";
 
 /**
  * 1. CONTEXT
@@ -40,10 +41,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
   interface MyJwtPayload extends JwtPayload {
     username: string;
   }
-  const decoded = jwt.verify(
-    session?.value,
-    process.env.JWT_SECRET!
-  ) as MyJwtPayload;
+  const decoded = (await decrypt(session.value)) as MyJwtPayload;
 
   const user = await db.user.findUnique({
     where: { username: decoded.username },
