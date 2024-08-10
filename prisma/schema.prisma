@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 generator zod {
@@ -10,14 +10,46 @@ generator zod {
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  username String @id @unique
-  email String @unique
-  password String 
+  username   String   @id @unique
+  email      String   @unique
+  password   String
   first_name String
-  last_name String
+  last_name  String
+  items      Item[]
+  reviews    Review[]
+}
+
+model Item {
+  id           Int      @id @default(autoincrement())
+  created_at   DateTime @default(now())
+  title        String
+  description  String
+  category     String
+  price        Int
+  User         User     @relation(fields: [userUsername], references: [username])
+  userUsername String
+  reviews      Review[]
+}
+
+model Review {
+  id           Int           @id @default(autoincrement())
+  created_at   DateTime      @default(now())
+  review       ReviewOptions
+  description  String
+  Item         Item          @relation(fields: [itemId], references: [id])
+  itemId       Int
+  User         User          @relation(fields: [userUsername], references: [username])
+  userUsername String
+}
+
+enum ReviewOptions {
+  EXCELLENT
+  GOOD
+  FAIR
+  POOR
 }
