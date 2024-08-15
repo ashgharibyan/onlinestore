@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { ItemCreateWithoutUserInputSchema } from "prisma/generated/zod";
 import { TRPCError } from "@trpc/server";
+import { ReviewOptions } from "@prisma/client";
 
 export const itemRouter = createTRPCRouter({
   create: protectedProcedure
@@ -70,5 +71,25 @@ export const itemRouter = createTRPCRouter({
         where: { id: input.id },
         include: { reviews: true },
       });
+    }),
+  // List all the items posted by user X, such that all the comments are "Excellent" or "Good" for these items
+  goodReviews: protectedProcedure
+    .input(z.object({ username: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const items = ctx.db.item.findMany({
+        where: {
+          userUsername: input.username,
+          reviews: {
+            every: {
+              review: {
+                in: ["EXCELLENT", "GOOD"],
+              },
+            },
+          },
+        },
+        include: { reviews: true },
+      });
+
+      return items;
     }),
 });
