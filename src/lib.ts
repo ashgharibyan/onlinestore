@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { type JwtPayload } from "jsonwebtoken";
 import { SignJWT, jwtVerify } from "jose";
+import { redirect } from "next/navigation";
+import { NextRequest, NextResponse } from "next/server";
 
 interface MyJwtPayload extends JwtPayload {
   username: string;
@@ -22,6 +24,7 @@ export async function decrypt(input: string): Promise<JwtPayload> {
 
   return payload;
 }
+
 export async function getSession() {
   const session = cookies().get("session")?.value;
   if (!session) return null;
@@ -29,7 +32,7 @@ export async function getSession() {
   return decrypted;
 }
 
-export async function isAuthenticated() {
+export async function isAuthenticated(request: NextRequest) {
   const session = cookies().get("session")?.value;
   if (!session) return false;
 
@@ -37,6 +40,6 @@ export async function isAuthenticated() {
     await decrypt(session);
     return true;
   } catch (error) {
-    return false;
+    console.log("--------", error);
   }
 }

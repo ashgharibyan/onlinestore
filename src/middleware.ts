@@ -6,7 +6,7 @@ const signInRoutes = ["/", "/login", "/sign-up"];
 const apiPrefix = "/api";
 
 export async function middleware(request: NextRequest) {
-  const isLogged = await isAuthenticated();
+  const isLogged = await isAuthenticated(request);
 
   const isApiAuthRoute = request.nextUrl.pathname.startsWith(apiPrefix);
   const isSignInRoute = signInRoutes.includes(request.nextUrl.pathname);
