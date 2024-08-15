@@ -41,9 +41,9 @@ model Review {
   created_at   DateTime      @default(now())
   review       ReviewOptions
   description  String
-  Item         Item          @relation(fields: [itemId], references: [id])
+  Item         Item          @relation(fields: [itemId], references: [id], onDelete: Cascade)  // Cascading delete on Item-Review relationship
   itemId       Int
-  User         User          @relation(fields: [userUsername], references: [username])
+  User         User          @relation(fields: [userUsername], references: [username], onDelete: Cascade)  // Cascading delete on User-Review relationship
   userUsername String
 }
 

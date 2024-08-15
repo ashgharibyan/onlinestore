@@ -177,4 +177,37 @@ export const userRouter = createTRPCRouter({
 
       return userItems.filter((user) => user.count === maxItems);
     }),
+  // get  all the users who posted some reviews, but each of them is "POOR".
+  poorReviewers: protectedProcedure.query(async () => {
+    const users = await db.user.findMany({
+      select: {
+        username: true,
+        reviews: {
+          select: {
+            review: true,
+          },
+        },
+      },
+      where: {
+        AND: [
+          {
+            reviews: {
+              some: {},
+            },
+          },
+          {
+            reviews: {
+              every: {
+                review: "POOR",
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    console.log("poorReviewers", users);
+
+    return users;
+  }),
 });
