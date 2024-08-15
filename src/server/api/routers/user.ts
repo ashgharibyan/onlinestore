@@ -58,4 +58,74 @@ export const userRouter = createTRPCRouter({
 
       return user;
     }),
+  //       the search will return the
+  // user (or users) who (the same user) posted two different items on the same day, such that one
+  // item has a category in the first text field and the other has a category in the second text field
+
+  twoCategories: protectedProcedure
+    .input(z.object({ category1: z.string(), category2: z.string() }))
+    .query(async ({ input }) => {
+      const { category1, category2 } = input;
+      console.log("category1", category1);
+      console.log("category2", category2);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Set time to the start of the day
+
+      const users = await db.user.findMany({
+        where: {
+          items: {
+            some: {},
+          },
+        },
+        select: {
+          username: true,
+          items: {
+            select: {
+              title: true,
+              category: true,
+              created_at: true,
+            },
+          },
+        },
+      });
+
+      const usersWithMultipleItemsSameDayDifferentCategories = users.filter(
+        (user) => {
+          // Group items by creation date
+          const itemsByDate: Record<
+            string,
+            { category1: boolean; category2: boolean }
+          > = {};
+
+          user.items.forEach((item) => {
+            const date = item.created_at.toISOString().split("T")[0];
+
+            if (!date) {
+              return false;
+            }
+            if (!itemsByDate[date]) {
+              itemsByDate[date] = { category1: false, category2: false };
+            }
+            if (item.category === category1) {
+              itemsByDate[date].category1 = true;
+            } else if (item.category === category2) {
+              itemsByDate[date].category2 = true;
+            }
+          });
+
+          // Check if there is any date where both categories are true
+          return Object.values(itemsByDate).some(
+            (itemCategories) =>
+              itemCategories.category1 && itemCategories.category2
+          );
+        }
+      );
+      console.log(
+        "usersWithMultipleItemsSameDay",
+        usersWithMultipleItemsSameDayDifferentCategories
+      );
+
+      return usersWithMultipleItemsSameDayDifferentCategories;
+    }),
 });
