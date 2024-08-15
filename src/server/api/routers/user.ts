@@ -128,4 +128,8 @@ export const userRouter = createTRPCRouter({
 
       return usersWithMultipleItemsSameDayDifferentCategories;
     }),
+
+  getAllUsers: protectedProcedure.query(async () => {
+    return db.user.findMany();
+  }),
 });

@@ -24,6 +24,9 @@ export default function Dashboard(props: { user: User }) {
         <Button component={NextLink} href={"/dashboard/two-categories"}>
           Two Categories
         </Button>
+        <Button component={NextLink} href={"/dashboard/good-reviews"}>
+          Good Reviews
+        </Button>
         <Button
           onClick={async () => {
             await logout();
