@@ -132,4 +132,49 @@ export const userRouter = createTRPCRouter({
   getAllUsers: protectedProcedure.query(async () => {
     return db.user.findMany();
   }),
+  // List the users who posted the most number of items on 7/4/2024; if there is a tie, list all the users who have a tie.
+  mostListed: protectedProcedure
+    .input(z.object({ date: z.string() }))
+    .query(async ({ input }) => {
+      const { date } = input;
+
+      const startOfDay = new Date(date + "T00:00:00");
+      const endOfDay = new Date(date + "T23:59:59");
+
+      const users = await db.user.findMany({
+        where: {
+          items: {
+            some: {
+              created_at: {
+                gte: startOfDay,
+                lt: endOfDay,
+              },
+            },
+          },
+        },
+        select: {
+          username: true,
+          items: {
+            where: {
+              created_at: {
+                gte: startOfDay,
+                lt: endOfDay,
+              },
+            },
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      const userItems = users.map((user) => ({
+        username: user.username,
+        count: user.items.length,
+      }));
+
+      const maxItems = Math.max(...userItems.map((user) => user.count));
+
+      return userItems.filter((user) => user.count === maxItems);
+    }),
 });
