@@ -12,7 +12,7 @@ export default async function Page({
   console.log("date------", date);
 
   if (!date) {
-    return <div>No Date Selected</div>;
+    return <MostListedLayout />;
   }
 
   const usersWithMostListedItems = await api.user.mostListed({ date });
