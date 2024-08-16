@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { ItemCreateWithoutUserInputSchema } from "prisma/generated/zod";
 import { TRPCError } from "@trpc/server";
-import { ReviewOptions } from "@prisma/client";
+import { db } from "@/server/db";
 
 export const itemRouter = createTRPCRouter({
   create: protectedProcedure
@@ -92,4 +92,38 @@ export const itemRouter = createTRPCRouter({
 
       return items;
     }),
+
+  // List the most expensive items in each category
+  mostExpensive: protectedProcedure.query(async () => {
+    // Get distinct categories
+    const categories = await db.item.findMany({
+      distinct: ["category"],
+    });
+
+    // For each category, find the most expensive item
+    const mostExpensiveItems = await Promise.all(
+      categories.map(async (category) => {
+        const items = await db.item.findMany({
+          select: {
+            title: true,
+            category: true,
+            price: true,
+          },
+          where: {
+            category: category.category,
+          },
+          orderBy: {
+            price: "desc",
+          },
+          take: 1,
+        });
+
+        return items[0];
+      })
+    );
+
+    console.log("mostExpensiveItems in trpc---- ", mostExpensiveItems);
+
+    return mostExpensiveItems;
+  }),
 });

@@ -1,8 +1,7 @@
 import { cookies } from "next/headers";
 import { type JwtPayload } from "jsonwebtoken";
 import { SignJWT, jwtVerify } from "jose";
-import { redirect } from "next/navigation";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest } from "next/server";
 
 interface MyJwtPayload extends JwtPayload {
   username: string;
@@ -33,13 +32,21 @@ export async function getSession() {
 }
 
 export async function isAuthenticated(request: NextRequest) {
-  const session = cookies().get("session")?.value;
-  if (!session) return false;
+  const sessionCookie = cookies().get("session");
+  const session = sessionCookie?.value;
+
+  if (!session) return { authenticated: false, expired: false };
 
   try {
     await decrypt(session);
-    return true;
+    return { authenticated: true, expired: false };
   } catch (error) {
-    console.log("--------", error);
+    if (error instanceof Error && error.name === "JWTExpired") {
+      // Return an indication that the session is expired
+      console.log("Session expired");
+      return { authenticated: false, expired: true };
+    }
+    console.error("Authentication error:", error);
+    return { authenticated: false, expired: false };
   }
 }

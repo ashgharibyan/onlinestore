@@ -34,14 +34,14 @@ export default function PoorReviews(props: { poorReviewers?: propType[] }) {
       </Text>
       {props.poorReviewers?.length ? (
         <Title mt="xl" order={3}>
-          PoorReviewers
+          Users
         </Title>
       ) : (
         <Text mt="xl">No Poor Reviewers</Text>
       )}
       {props.poorReviewers?.map((poorReviewer) => (
         <List key={poorReviewer.username}>
-          <ListItem>User: {poorReviewer.username}</ListItem>
+          <ListItem>{poorReviewer.username}</ListItem>
         </List>
       ))}
     </Container>
