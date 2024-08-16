@@ -210,4 +210,37 @@ export const userRouter = createTRPCRouter({
 
     return users;
   }),
+  noPoorReviews: protectedProcedure.query(async () => {
+    const users = await db.user.findMany({
+      select: {
+        username: true,
+        items: {
+          select: {
+            title: true,
+            reviews: {
+              select: {
+                review: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        items: {
+          some: {},
+          every: {
+            reviews: {
+              none: {
+                review: "POOR",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    console.log("noPoorReviews", users);
+
+    return users;
+  }),
 });

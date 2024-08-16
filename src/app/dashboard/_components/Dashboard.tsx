@@ -21,6 +21,9 @@ export default function Dashboard(props: { user: User }) {
         <Button component={NextLink} href={"/dashboard/items"}>
           Items
         </Button>
+        <Button component={NextLink} href={"/dashboard/most-expensive-items"}>
+          Most Expensive Items
+        </Button>
         <Button component={NextLink} href={"/dashboard/two-categories"}>
           Two Categories
         </Button>
@@ -32,6 +35,9 @@ export default function Dashboard(props: { user: User }) {
         </Button>
         <Button component={NextLink} href={"/dashboard/poor-reviews"}>
           Poor Review Users
+        </Button>
+        <Button component={NextLink} href={"/dashboard/no-poor-reviews"}>
+          No Poor Reviews
         </Button>
         <Button
           onClick={async () => {
