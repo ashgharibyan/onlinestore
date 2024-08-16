@@ -1,7 +1,7 @@
 # Comp 440 - Summer 2024 - Project - Online Store
 
-Phase 2
-Youtube Link: https://youtu.be/fnW6opNJsjs
+Phase 3
+Youtube Link: https://www.youtube.com/watch?v=WG4r8c4sRms&themeRefresh=1
 
 Tech Stack
 
